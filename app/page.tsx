@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { toPng } from 'html-to-image';
+import { toPng } from "html-to-image";
 import { Download, RefreshCw, Link as LinkIcon, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,27 +15,30 @@ export default function EnsignApp() {
   const [repoInput, setRepoInput] = useState("");
   const [data, setData] = useState({
     title: "ensign",
-    description: "Generate beautiful, ultra-high-resolution social share images for your GitHub repositories directly in the browser.",
+    description:
+      "Generate beautiful, ultra-high-resolution social share images for your GitHub repositories directly in the browser.",
     website: "https://ensign.falak.me",
     language: "TypeScript",
     stars: 128,
     forks: 14,
     author: "falakme",
-    avatarUrl: "https://raw.githubusercontent.com/falakme/brand-assets/refs/heads/main/logos/core/icon-square-512.png",
-    customIconUrl: ""
+    avatarUrl:
+      "https://raw.githubusercontent.com/falakme/brand-assets/refs/heads/main/logos/core/icon-square-512.png",
+    customIconUrl: "",
   });
 
   // Convert initial avatar to base64
   useEffect(() => {
     fetch(data.avatarUrl)
-      .then(res => res.blob())
-      .then(blob => {
+      .then((res) => res.blob())
+      .then((blob) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setData(prev => ({ ...prev, avatarUrl: reader.result as string }));
+          setData((prev) => ({ ...prev, avatarUrl: reader.result as string }));
         };
         reader.readAsDataURL(blob);
-      }).catch(console.error);
+      })
+      .catch(console.error);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [theme, setTheme] = useState({
@@ -43,9 +46,9 @@ export default function EnsignApp() {
     foreground: "#ffffff",
     accent: "#3b82f6",
     cardBg: "#18181b",
-    pattern: "grid"
+    pattern: "grid",
   });
-  const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+  const [activeTab, setActiveTab] = useState<"content" | "design">("content");
 
   useEffect(() => {
     const updateScale = () => {
@@ -64,7 +67,7 @@ export default function EnsignApp() {
   const handleFetchRepo = async () => {
     if (!repoInput) return;
     let repoPath = repoInput.trim();
-    if (repoPath.startsWith('http')) {
+    if (repoPath.startsWith("http")) {
       try {
         const url = new URL(repoPath);
         repoPath = url.pathname.substring(1);
@@ -78,7 +81,7 @@ export default function EnsignApp() {
       const response = await fetch(`https://api.github.com/repos/${repoPath}`);
       if (!response.ok) throw new Error("Repo not found");
       const repoData = await response.json();
-      setData(prev => ({
+      setData((prev) => ({
         ...prev,
         title: repoData.name,
         description: repoData.description || "No description provided.",
@@ -87,14 +90,14 @@ export default function EnsignApp() {
         stars: repoData.stargazers_count,
         forks: repoData.forks_count,
         author: repoData.owner.login,
-        avatarUrl: repoData.owner.avatar_url
+        avatarUrl: repoData.owner.avatar_url,
       }));
       // Fetch avatar as base64 to avoid cross-origin issues during export
       const avatarRes = await fetch(repoData.owner.avatar_url);
       const avatarBlob = await avatarRes.blob();
       const reader = new FileReader();
       reader.onloadend = () => {
-        setData(prev => ({ ...prev, avatarUrl: reader.result as string }));
+        setData((prev) => ({ ...prev, avatarUrl: reader.result as string }));
       };
       reader.readAsDataURL(avatarBlob);
     } catch (error) {
@@ -110,14 +113,14 @@ export default function EnsignApp() {
     try {
       const dataUrl = await toPng(previewRef.current, {
         pixelRatio: 1,
-        backgroundColor: theme.background
+        backgroundColor: theme.background,
       });
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.download = `${data.title}-social-preview.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error('Oops, something went wrong!', err);
+      console.error("Oops, something went wrong!", err);
     } finally {
       setIsExporting(false);
     }
@@ -127,7 +130,7 @@ export default function EnsignApp() {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      setData(prev => ({ ...prev, customIconUrl: url }));
+      setData((prev) => ({ ...prev, customIconUrl: url }));
     }
   };
 
@@ -137,100 +140,236 @@ export default function EnsignApp() {
         <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-zinc-100 text-zinc-900 rounded-md flex items-center justify-center font-bold">
-              <svg aria-hidden="true" focusable="false" className="octicon octicon-mark-github" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" display="inline-block" overflow="visible" style={{ verticalAlign: "text-bottom" }}><path d="M12 1C5.9225 1 1 5.9225 1 12C1 16.8675 4.14875 20.9787 8.52125 22.4362C9.07125 22.5325 9.2775 22.2025 9.2775 21.9137C9.2775 21.6525 9.26375 20.7862 9.26375 19.865C6.5 20.3737 5.785 19.1912 5.565 18.5725C5.44125 18.2562 4.905 17.28 4.4375 17.0187C4.0525 16.8125 3.5025 16.3037 4.42375 16.29C5.29 16.2762 5.90875 17.0875 6.115 17.4175C7.105 19.0812 8.68625 18.6137 9.31875 18.325C9.415 17.61 9.70375 17.1287 10.02 16.8537C7.5725 16.5787 5.015 15.63 5.015 11.4225C5.015 10.2262 5.44125 9.23625 6.1425 8.46625C6.0325 8.19125 5.6475 7.06375 6.2525 5.55125C6.2525 5.55125 7.17375 5.2625 9.2775 6.67875C10.1575 6.43125 11.0925 6.3075 12.0275 6.3075C12.9625 6.3075 13.8975 6.43125 14.7775 6.67875C16.8813 5.24875 17.8025 5.55125 17.8025 5.55125C18.4075 7.06375 18.0225 8.19125 17.9125 8.46625C18.6138 9.23625 19.04 10.2125 19.04 11.4225C19.04 15.6437 16.4688 16.5787 14.0213 16.8537C14.42 17.1975 14.7638 17.8575 14.7638 18.8887C14.7638 20.36 14.75 21.5425 14.75 21.9137C14.75 22.2025 14.9563 22.5462 15.5063 22.4362C19.8513 20.9787 23 16.8537 23 12C23 5.9225 18.0775 1 12 1Z"></path></svg>
+              <img src="./Ensign.png" style={{border: "white 1px solid", borderRadius: "20%"}} alt="" />
             </div>
             <h1 className="font-bold text-xl tracking-tight">Ensign</h1>
           </div>
-          <span className="text-xs font-medium px-2 py-1 bg-zinc-900 text-zinc-400 rounded-full border border-zinc-800">Falak.me</span>
+          <span className="text-xs font-medium px-2 py-1 bg-zinc-900 text-zinc-400 rounded-full border border-zinc-800">
+            Falak.me
+          </span>
         </div>
         <div className="flex w-full border-b border-zinc-800 px-6 pt-4 gap-6">
-          <button onClick={() => setActiveTab('content')} className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'content' ? 'border-zinc-100 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}>Content</button>
-          <button onClick={() => setActiveTab('design')} className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'design' ? 'border-zinc-100 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}>Design</button>
+          <button
+            onClick={() => setActiveTab("content")}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === "content" ? "border-zinc-100 text-zinc-100" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
+          >
+            Content
+          </button>
+          <button
+            onClick={() => setActiveTab("design")}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === "design" ? "border-zinc-100 text-zinc-100" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
+          >
+            Design
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {activeTab === 'content' && (
+          {activeTab === "content" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
               <div className="space-y-3">
                 <Label>Import from GitHub</Label>
                 <div className="flex gap-2">
-                  <Input placeholder="falakme/ensign" value={repoInput} onChange={(e) => setRepoInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleFetchRepo()} />
-                  <Button variant="outline" style={{background: "none"}} onClick={handleFetchRepo} disabled={isFetching}>
-                    {isFetching ? <RefreshCw className="w-4 h-4 animate-spin text-zinc-500 hover:text-zinc-100 hover:cursor-pointer transition-[stroke-width,color] hover:stroke-[3]" /> : <RefreshCw className="w-4 h-4 text-zinc-500 hover:text-zinc-100 hover:cursor-pointer transition-[stroke-width,color] hover:stroke-[3]" />}
+                  <Input
+                    placeholder="falakme/ensign"
+                    value={repoInput}
+                    onChange={(e) => setRepoInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleFetchRepo()}
+                  />
+                  <Button
+                    variant="outline"
+                    style={{ background: "none" }}
+                    onClick={handleFetchRepo}
+                    disabled={isFetching}
+                  >
+                    {isFetching ? (
+                      <RefreshCw className="w-4 h-4 animate-spin text-zinc-500 hover:text-zinc-100 hover:cursor-pointer transition-[stroke-width,color] hover:stroke-[3]" />
+                    ) : (
+                      <RefreshCw className="w-4 h-4 text-zinc-500 hover:text-zinc-100 hover:cursor-pointer transition-[stroke-width,color] hover:stroke-[3]" />
+                    )}
                   </Button>
                 </div>
-                <p className="text-xs text-zinc-500">Paste a URL or type owner/repo.</p>
+                <p className="text-xs text-zinc-500">
+                  Paste a URL or type owner/repo.
+                </p>
               </div>
               <div className="h-[1px] w-full bg-zinc-800" />
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Repository Name</Label>
-                  <Input value={data.title} onChange={e => setData({...data, title: e.target.value})} />
+                  <Input
+                    value={data.title}
+                    onChange={(e) =>
+                      setData({ ...data, title: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <textarea className="flex min-h-[100px] w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300" value={data.description} onChange={e => setData({...data, description: e.target.value})} />
+                  <textarea
+                    className="flex min-h-[100px] w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300"
+                    value={data.description}
+                    onChange={(e) =>
+                      setData({ ...data, description: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Website / Subtitle</Label>
-                  <Input value={data.website} onChange={e => setData({...data, website: e.target.value})} />
+                  <Input
+                    value={data.website}
+                    onChange={(e) =>
+                      setData({ ...data, website: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Language</Label>
-                  <Input value={data.language} onChange={e => setData({...data, language: e.target.value})} placeholder="e.g. Python, TypeScript" />
+                  <Input
+                    value={data.language}
+                    onChange={(e) =>
+                      setData({ ...data, language: e.target.value })
+                    }
+                    placeholder="e.g. Python, TypeScript"
+                  />
                 </div>
               </div>
             </div>
           )}
-          {activeTab === 'design' && (
+          {activeTab === "design" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-300">
               <div className="space-y-4">
                 <Label>Background Color</Label>
                 <div className="flex gap-3">
-                  <Input type="color" value={theme.background} onChange={(e) => setTheme({...theme, background: e.target.value})} className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0" />
-                  <Input value={theme.background} onChange={(e) => setTheme({...theme, background: e.target.value})} className="font-mono" />
+                  <Input
+                    type="color"
+                    value={theme.background}
+                    onChange={(e) =>
+                      setTheme({ ...theme, background: e.target.value })
+                    }
+                    className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0"
+                  />
+                  <Input
+                    value={theme.background}
+                    onChange={(e) =>
+                      setTheme({ ...theme, background: e.target.value })
+                    }
+                    className="font-mono"
+                  />
                 </div>
               </div>
               <div className="space-y-4">
                 <Label>Accent Color</Label>
                 <div className="flex gap-3">
-                  <input type="color" value={theme.accent} onChange={(e) => setTheme({...theme, accent: e.target.value})} className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0" />
-                  <Input value={theme.accent} onChange={(e) => setTheme({...theme, accent: e.target.value})} className="font-mono" />
+                  <input
+                    type="color"
+                    value={theme.accent}
+                    onChange={(e) =>
+                      setTheme({ ...theme, accent: e.target.value })
+                    }
+                    className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0"
+                  />
+                  <Input
+                    value={theme.accent}
+                    onChange={(e) =>
+                      setTheme({ ...theme, accent: e.target.value })
+                    }
+                    className="font-mono"
+                  />
                 </div>
               </div>
               <div className="h-[1px] w-full bg-zinc-800" />
               <div className="space-y-4">
                 <Label>Custom Icon (Overrides Avatar)</Label>
-                <Input type="file" accept="image/*" onChange={handleIconUpload} className="pt-1.5 cursor-pointer text-zinc-400 file:text-zinc-100" />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleIconUpload}
+                  className="pt-1.5 cursor-pointer text-zinc-400 file:text-zinc-100"
+                />
                 {data.customIconUrl && (
-                  <Button variant="ghost" className="text-xs h-8" onClick={() => setData({...data, customIconUrl: ""})}>Remove Custom Icon</Button>
+                  <Button
+                    variant="ghost"
+                    className="text-xs h-8"
+                    onClick={() => setData({ ...data, customIconUrl: "" })}
+                  >
+                    Remove Custom Icon
+                  </Button>
                 )}
               </div>
             </div>
           )}
         </div>
         <div className="p-6 border-t border-zinc-800 bg-zinc-950">
-          <Button className="w-full gap-2 font-bold hover:bg-zinc-100 hover:text-zinc-950 cursor-pointer transition-colors" onClick={handleDownload} disabled={isExporting}>
-            {isExporting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          <Button
+            className="w-full gap-2 font-bold hover:bg-zinc-100 hover:text-zinc-950 cursor-pointer transition-colors"
+            onClick={handleDownload}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
             {isExporting ? "Rendering Image..." : "Export 2560x1280"}
           </Button>
         </div>
       </div>
-      <div ref={containerRef} className="flex-1 relative bg-zinc-900 overflow-hidden flex items-center justify-center p-8 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat">
+      <div
+        ref={containerRef}
+        className="flex-1 relative bg-zinc-900 overflow-hidden flex items-center justify-center p-8 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat"
+      >
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        <div className="relative shadow-2xl ring-1 ring-white/10 flex-shrink-0" style={{ width: "2560px", height: "1280px", transform: `scale(${scale})`, transformOrigin: "center center", transition: "transform 0.1s ease-out" }}>
-          <div ref={previewRef} className="w-full h-full relative overflow-hidden" style={{ backgroundColor: theme.background, color: theme.foreground, padding: "160px" }}>
-            {theme.pattern === 'grid' && (
-              <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: `linear-gradient(to right, ${theme.foreground} 1px, transparent 1px), linear-gradient(to bottom, ${theme.foreground} 1px, transparent 1px)`, backgroundSize: '100px 100px' }} />
+        <div
+          className="relative shadow-2xl ring-1 ring-white/10 flex-shrink-0"
+          style={{
+            width: "2560px",
+            height: "1280px",
+            transform: `scale(${scale})`,
+            transformOrigin: "center center",
+            transition: "transform 0.1s ease-out",
+          }}
+        >
+          <div
+            ref={previewRef}
+            className="w-full h-full relative overflow-hidden"
+            style={{
+              backgroundColor: theme.background,
+              color: theme.foreground,
+              padding: "160px",
+            }}
+          >
+            {theme.pattern === "grid" && (
+              <div
+                className="absolute inset-0 opacity-20 pointer-events-none"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${theme.foreground} 1px, transparent 1px), linear-gradient(to bottom, ${theme.foreground} 1px, transparent 1px)`,
+                  backgroundSize: "100px 100px",
+                }}
+              />
             )}
-            <div className="w-full h-full rounded-[64px] border-[4px] border-white/10 flex flex-col relative z-10 overflow-hidden" style={{ backgroundColor: theme.cardBg, boxShadow: '0 40px 100px -20px rgba(0,0,0,0.5)' }}>
+            <div
+              className="w-full h-full rounded-[64px] border-[4px] border-white/10 flex flex-col relative z-10 overflow-hidden"
+              style={{
+                backgroundColor: theme.cardBg,
+                boxShadow: "0 40px 100px -20px rgba(0,0,0,0.5)",
+              }}
+            >
               <div className="flex-1 p-[100px] flex flex-col justify-between">
                 <div className="flex items-center gap-12">
                   <div className="w-[200px] h-[200px] rounded-[48px] overflow-hidden border-[8px] border-white/5 bg-zinc-800 shadow-2xl flex-shrink-0">
-                    <img src={data.customIconUrl || data.avatarUrl} alt="Icon" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                    <img
+                      src={data.customIconUrl || data.avatarUrl}
+                      alt="Icon"
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
                   </div>
                   <div className="flex items-baseline gap-6 tracking-tight flex-wrap">
-                    <span className="text-[64px] font-semibold opacity-70">{data.author}</span>
-                    <span className="text-[64px] font-semibold opacity-40">/</span>
+                    <span className="text-[64px] font-semibold opacity-70">
+                      {data.author}
+                    </span>
+                    <span className="text-[64px] font-semibold opacity-40">
+                      /
+                    </span>
                     <h1
                       className="font-black leading-[1] tracking-tighter whitespace-nowrap"
                       style={{
@@ -242,8 +381,10 @@ export default function EnsignApp() {
                     </h1>
                   </div>
                 </div>
-                <div className="space-y-12">    
-                  <p className="text-[50px] leading-[1.4] opacity-70 max-w-[100%] font-medium text-balance">{data.description}</p>
+                <div className="space-y-12">
+                  <p className="text-[50px] leading-[1.4] opacity-70 max-w-[100%] font-medium text-balance">
+                    {data.description}
+                  </p>
                 </div>
                 <div className="flex items-center justify-between pt-12 border-t-[4px] border-white/10 mt-12">
                   <div className="flex items-center gap-12 text-[48px] font-medium opacity-80">
@@ -255,13 +396,19 @@ export default function EnsignApp() {
                   {data.website && (
                     <div className="flex items-center gap-6 text-[48px] font-medium text-white/50 bg-white/5 px-10 py-6 rounded-full">
                       <LinkIcon size={48} />
-                      <span>{data.website.replace(/^https?:\/\//, '')}</span>
+                      <span>{data.website.replace(/^https?:\/\//, "")}</span>
                     </div>
                   )}
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-[1000px] h-[1000px] rounded-full blur-[200px] opacity-20 pointer-events-none translate-x-1/2 -translate-y-1/2" style={{ backgroundColor: theme.accent }} />
-              <div className="absolute bottom-0 left-0 w-[800px] h-[800px] rounded-full blur-[200px] opacity-10 pointer-events-none -translate-x-1/3 translate-y-1/3" style={{ backgroundColor: theme.accent }} />
+              <div
+                className="absolute top-0 right-0 w-[1000px] h-[1000px] rounded-full blur-[200px] opacity-20 pointer-events-none translate-x-1/2 -translate-y-1/2"
+                style={{ backgroundColor: theme.accent }}
+              />
+              <div
+                className="absolute bottom-0 left-0 w-[800px] h-[800px] rounded-full blur-[200px] opacity-10 pointer-events-none -translate-x-1/3 translate-y-1/3"
+                style={{ backgroundColor: theme.accent }}
+              />
             </div>
           </div>
         </div>
