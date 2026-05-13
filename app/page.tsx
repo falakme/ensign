@@ -111,6 +111,10 @@ export default function EnsignApp() {
     if (previewRef.current === null) return;
     setIsExporting(true);
     try {
+      await toPng(previewRef.current, {
+        pixelRatio: 1,
+        backgroundColor: theme.background,
+      });
       const dataUrl = await toPng(previewRef.current, {
         pixelRatio: 1,
         backgroundColor: theme.background,
@@ -137,7 +141,7 @@ export default function EnsignApp() {
   return (
     <div className="flex h-screen w-full bg-zinc-950 text-zinc-100 overflow-hidden" style={{ fontFamily: "'Montserrat', sans-serif" }}>
       <style dangerouslySetInnerHTML={{ __html: "@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');" }} />
-      <div className="w-[420px] flex-shrink-0 border-r border-zinc-800 bg-zinc-950/50 flex flex-col h-full z-10">
+      <div className="w-[420px] flex-shrink-0 border-r border-zinc-800 bg-[#0c0c0c] flex flex-col h-full z-10">
         <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-zinc-100 text-zinc-900 rounded-md flex items-center justify-center font-bold">
@@ -361,7 +365,6 @@ export default function EnsignApp() {
                       src={data.customIconUrl || data.avatarUrl}
                       alt="Icon"
                       className="w-full h-full object-cover"
-                      crossOrigin="anonymous"
                     />
                   </div>
                   <div className="flex items-baseline gap-6 tracking-tight flex-wrap">
